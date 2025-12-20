@@ -1,355 +1,312 @@
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
 import Icon from '@/components/ui/icon';
-
-interface ClassData {
-  id: number;
-  name: string;
-  score: number;
-  rating: 'A' | 'B' | 'C';
-  totalEquipment: number;
-  working: number;
-  needsMaintenance: number;
-  critical: number;
-}
 
 interface EquipmentItem {
   id: number;
   name: string;
   type: string;
   status: 'working' | 'warning' | 'critical';
-  wearLevel: number;
+  location: string;
   lastMaintenance: string;
-  predictedReplacement: string;
-  daysUntilReplacement: number;
+  nextMaintenance: string;
+  responsible: string;
+}
+
+interface ClassRating {
+  id: number;
+  className: string;
+  rating: number;
+  totalQuestions: number;
+  positiveAnswers: number;
+  needsAttention: number;
+}
+
+interface Review {
+  id: number;
+  author: string;
+  role: string;
+  date: string;
+  rating: number;
+  equipmentId: number;
+  equipmentName: string;
+  comment: string;
 }
 
 export default function Index() {
-  const [selectedTab, setSelectedTab] = useState('rating');
-
-  const classesData: ClassData[] = [
-    { id: 1, name: 'Компьютерный класс №1', score: 87, rating: 'A', totalEquipment: 25, working: 23, needsMaintenance: 2, critical: 0 },
-    { id: 2, name: 'Компьютерный класс №2', score: 72, rating: 'B', totalEquipment: 20, working: 16, needsMaintenance: 3, critical: 1 },
-    { id: 3, name: 'Компьютерный класс №3', score: 65, rating: 'B', totalEquipment: 30, working: 20, needsMaintenance: 7, critical: 3 },
-  ];
+  const [selectedTab, setSelectedTab] = useState('equipment');
+  const [newReview, setNewReview] = useState({ rating: 5, comment: '' });
 
   const equipmentData: EquipmentItem[] = [
-    { id: 1, name: 'Рабочая станция #01', type: 'Компьютер', status: 'working', wearLevel: 35, lastMaintenance: '15.11.2024', predictedReplacement: '2026 Q2', daysUntilReplacement: 520 },
-    { id: 2, name: 'Рабочая станция #02', type: 'Компьютер', status: 'working', wearLevel: 42, lastMaintenance: '20.10.2024', predictedReplacement: '2026 Q1', daysUntilReplacement: 430 },
-    { id: 3, name: 'Рабочая станция #03', type: 'Компьютер', status: 'warning', wearLevel: 68, lastMaintenance: '05.09.2024', predictedReplacement: '2025 Q4', daysUntilReplacement: 180 },
-    { id: 4, name: 'Монитор Dell #12', type: 'Монитор', status: 'critical', wearLevel: 89, lastMaintenance: '12.08.2024', predictedReplacement: '2025 Q2', daysUntilReplacement: 45 },
-    { id: 5, name: 'Сервер #01', type: 'Сервер', status: 'working', wearLevel: 28, lastMaintenance: '01.12.2024', predictedReplacement: '2027 Q1', daysUntilReplacement: 740 },
-    { id: 6, name: 'Принтер HP LaserJet', type: 'Периферия', status: 'warning', wearLevel: 72, lastMaintenance: '10.10.2024', predictedReplacement: '2025 Q3', daysUntilReplacement: 120 },
+    { id: 1, name: 'Рабочая станция #01', type: 'Компьютер', status: 'working', location: 'Класс №1', lastMaintenance: '15.11.2024', nextMaintenance: '15.02.2025', responsible: 'Иванов И.И.' },
+    { id: 2, name: 'Рабочая станция #02', type: 'Компьютер', status: 'working', location: 'Класс №1', lastMaintenance: '20.10.2024', nextMaintenance: '20.01.2025', responsible: 'Иванов И.И.' },
+    { id: 3, name: 'Рабочая станция #03', type: 'Компьютер', status: 'warning', location: 'Класс №2', lastMaintenance: '05.09.2024', nextMaintenance: '05.12.2024', responsible: 'Петров П.П.' },
+    { id: 4, name: 'Монитор Dell #12', type: 'Монитор', status: 'critical', location: 'Класс №2', lastMaintenance: '12.08.2024', nextMaintenance: '12.11.2024', responsible: 'Петров П.П.' },
+    { id: 5, name: 'Сервер #01', type: 'Сервер', status: 'working', location: 'Серверная', lastMaintenance: '01.12.2024', nextMaintenance: '01.03.2025', responsible: 'Сидоров С.С.' },
+    { id: 6, name: 'Принтер HP LaserJet', type: 'Периферия', status: 'warning', location: 'Класс №3', lastMaintenance: '10.10.2024', nextMaintenance: '10.01.2025', responsible: 'Иванов И.И.' },
+    { id: 7, name: 'Проектор Epson', type: 'Проектор', status: 'working', location: 'Класс №1', lastMaintenance: '25.11.2024', nextMaintenance: '25.02.2025', responsible: 'Иванов И.И.' },
+    { id: 8, name: 'Интерактивная доска', type: 'Периферия', status: 'working', location: 'Класс №2', lastMaintenance: '18.11.2024', nextMaintenance: '18.02.2025', responsible: 'Петров П.П.' },
   ];
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'working': return 'text-[#00F0FF]';
-      case 'warning': return 'text-[#F97316]';
-      case 'critical': return 'text-[#ef4444]';
-      default: return 'text-gray-400';
-    }
+  const classRatings: ClassRating[] = [
+    { id: 1, className: 'Компьютерный класс №1', rating: 87, totalQuestions: 15, positiveAnswers: 13, needsAttention: 2 },
+    { id: 2, className: 'Компьютерный класс №2', rating: 72, totalQuestions: 15, positiveAnswers: 11, needsAttention: 4 },
+    { id: 3, className: 'Компьютерный класс №3', rating: 65, totalQuestions: 15, positiveAnswers: 10, needsAttention: 5 },
+  ];
+
+  const reviews: Review[] = [
+    { id: 1, author: 'Смирнов А.В.', role: 'Преподаватель', date: '18.12.2024', rating: 5, equipmentId: 1, equipmentName: 'Рабочая станция #01', comment: 'Отличное состояние, работает стабильно. Студенты не испытывают проблем.' },
+    { id: 2, author: 'Козлова М.И.', role: 'Преподаватель', date: '17.12.2024', rating: 3, equipmentId: 3, equipmentName: 'Рабочая станция #03', comment: 'Периодически зависает, требуется проверка. Мешает проведению занятий.' },
+    { id: 3, author: 'Новиков Д.С.', role: 'Администратор', date: '15.12.2024', rating: 2, equipmentId: 4, equipmentName: 'Монитор Dell #12', comment: 'Монитор мерцает, срочно требуется замена. Студенты жалуются на усталость глаз.' },
+    { id: 4, author: 'Федорова Н.П.', role: 'Преподаватель', date: '14.12.2024', rating: 5, equipmentId: 7, equipmentName: 'Проектор Epson', comment: 'Изображение чёткое, звук хороший. Отлично подходит для презентаций.' },
+    { id: 5, author: 'Морозов В.Л.', role: 'Техник', date: '12.12.2024', rating: 4, equipmentId: 5, equipmentName: 'Сервер #01', comment: 'Работает стабильно, но требуется обновление ПО в ближайшее время.' },
+  ];
+
+  const getStatusBadge = (status: string) => {
+    const variants = {
+      working: { label: 'Работает', className: 'bg-green-100 text-green-800 border-green-200' },
+      warning: { label: 'Требует внимания', className: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
+      critical: { label: 'Критично', className: 'bg-red-100 text-red-800 border-red-200' },
+    };
+    const variant = variants[status as keyof typeof variants] || variants.working;
+    return <Badge className={variant.className}>{variant.label}</Badge>;
   };
 
-  const getStatusBg = (status: string) => {
-    switch (status) {
-      case 'working': return 'bg-[#00F0FF]/10 border-[#00F0FF]/30';
-      case 'warning': return 'bg-[#F97316]/10 border-[#F97316]/30';
-      case 'critical': return 'bg-[#ef4444]/10 border-[#ef4444]/30';
-      default: return 'bg-gray-800/10';
-    }
-  };
-
-  const getRatingColor = (rating: string) => {
-    switch (rating) {
-      case 'A': return 'bg-[#00F0FF] text-[#0A0E1A]';
-      case 'B': return 'bg-[#8B5CF6] text-white';
-      case 'C': return 'bg-[#F97316] text-white';
-      default: return 'bg-gray-600 text-white';
-    }
+  const renderStars = (rating: number) => {
+    return (
+      <div className="flex gap-1">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <Icon
+            key={star}
+            name="Star"
+            size={16}
+            className={star <= rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}
+          />
+        ))}
+      </div>
+    );
   };
 
   return (
-    <div className="min-h-screen cyber-grid p-6 md:p-8">
+    <div className="min-h-screen bg-white p-6 md:p-8">
       <div className="max-w-7xl mx-auto space-y-8">
         
-        <header className="text-center space-y-4 animate-slide-up">
-          <div className="flex items-center justify-center gap-3 mb-2">
-            <Icon name="Cpu" className="text-[#00F0FF] glow" size={40} />
-            <h1 className="text-5xl md:text-6xl font-black text-[#00F0FF] glow tracking-wider">
-              ТЕХКОНТРОЛЬ
+        <header className="border-b pb-6">
+          <div className="flex items-center gap-3 mb-2">
+            <Icon name="ClipboardList" className="text-black" size={36} />
+            <h1 className="text-4xl font-bold text-black">
+              Система учёта оборудования
             </h1>
           </div>
-          <p className="text-lg text-[#00F0FF]/70 font-light tracking-wide">
-            Система учёта и мониторинга оборудования компьютерных классов
+          <p className="text-gray-600 text-lg">
+            Управление техникой компьютерных классов
           </p>
         </header>
 
         <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-[#0A0E1A]/60 border border-[#00F0FF]/20 p-1">
-            <TabsTrigger 
-              value="rating" 
-              className="data-[state=active]:bg-[#00F0FF] data-[state=active]:text-[#0A0E1A] data-[state=active]:glow-border"
-            >
-              <Icon name="Trophy" size={18} className="mr-2" />
-              Рейтинг
+          <TabsList className="grid w-full grid-cols-3 bg-gray-100">
+            <TabsTrigger value="equipment">
+              <Icon name="Monitor" size={18} className="mr-2" />
+              Таблица оборудования
             </TabsTrigger>
-            <TabsTrigger 
-              value="statistics"
-              className="data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white data-[state=active]:glow-border"
-            >
-              <Icon name="BarChart3" size={18} className="mr-2" />
-              Статистика
+            <TabsTrigger value="ratings">
+              <Icon name="BarChart" size={18} className="mr-2" />
+              Оценки классов
             </TabsTrigger>
-            <TabsTrigger 
-              value="equipment"
-              className="data-[state=active]:bg-[#00F0FF] data-[state=active]:text-[#0A0E1A] data-[state=active]:glow-border"
-            >
-              <Icon name="HardDrive" size={18} className="mr-2" />
-              Оборудование
-            </TabsTrigger>
-            <TabsTrigger 
-              value="reports"
-              className="data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white data-[state=active]:glow-border"
-            >
-              <Icon name="FileText" size={18} className="mr-2" />
-              Отчёты
+            <TabsTrigger value="reviews">
+              <Icon name="MessageSquare" size={18} className="mr-2" />
+              Отзывы
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="rating" className="space-y-6 mt-8">
-            <div className="grid gap-6">
-              {classesData.map((classRoom, index) => (
-                <Card 
-                  key={classRoom.id} 
-                  className="bg-[#0A0E1A]/80 border-[#00F0FF]/20 p-6 hover:border-[#00F0FF]/50 transition-all duration-300 hover:shadow-[0_0_30px_rgba(0,240,255,0.3)] animate-slide-up"
-                  style={{ animationDelay: `${index * 100}ms` }}
-                >
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                    <div className="flex-1 space-y-3">
-                      <div className="flex items-center gap-4">
-                        <Badge className={`text-2xl font-black px-4 py-2 ${getRatingColor(classRoom.rating)} glow-border`}>
-                          {classRoom.rating}
-                        </Badge>
-                        <div>
-                          <h3 className="text-2xl font-bold text-white">{classRoom.name}</h3>
-                          <p className="text-[#00F0FF]/60 text-sm">Рейтинг: {classRoom.score}/100</p>
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-400">Общий показатель эффективности</span>
-                          <span className="text-[#00F0FF] font-bold">{classRoom.score}%</span>
-                        </div>
-                        <Progress value={classRoom.score} className="h-3 bg-gray-800/50" />
-                      </div>
-                    </div>
-
-                    <div className="flex gap-6 md:flex-col md:items-end">
-                      <div className="text-center">
-                        <div className="text-3xl font-black text-[#00F0FF] glow">{classRoom.working}</div>
-                        <div className="text-xs text-gray-400">Работает</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-3xl font-black text-[#F97316]">{classRoom.needsMaintenance}</div>
-                        <div className="text-xs text-gray-400">Требует ТО</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-3xl font-black text-[#ef4444] animate-glow-pulse">{classRoom.critical}</div>
-                        <div className="text-xs text-gray-400">Критично</div>
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="statistics" className="space-y-6 mt-8">
-            <div className="grid md:grid-cols-3 gap-6">
-              <Card className="bg-[#0A0E1A]/80 border-[#00F0FF]/20 p-6 hover:border-[#00F0FF]/50 transition-all">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Icon name="CheckCircle2" className="text-[#00F0FF]" size={32} />
-                    <span className="text-4xl font-black text-[#00F0FF] glow">78%</span>
-                  </div>
-                  <h4 className="text-lg font-bold text-white">Работоспособность</h4>
-                  <p className="text-sm text-gray-400">59 из 75 единиц оборудования</p>
-                </div>
-              </Card>
-
-              <Card className="bg-[#0A0E1A]/80 border-[#8B5CF6]/20 p-6 hover:border-[#8B5CF6]/50 transition-all">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Icon name="Clock" className="text-[#8B5CF6]" size={32} />
-                    <span className="text-4xl font-black text-[#8B5CF6] glow">16%</span>
-                  </div>
-                  <h4 className="text-lg font-bold text-white">Требует обслуживания</h4>
-                  <p className="text-sm text-gray-400">12 единиц в ближайшие 30 дней</p>
-                </div>
-              </Card>
-
-              <Card className="bg-[#0A0E1A]/80 border-[#ef4444]/20 p-6 hover:border-[#ef4444]/50 transition-all animate-glow-pulse">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Icon name="AlertTriangle" className="text-[#ef4444]" size={32} />
-                    <span className="text-4xl font-black text-[#ef4444] glow">5%</span>
-                  </div>
-                  <h4 className="text-lg font-bold text-white">Критическое состояние</h4>
-                  <p className="text-sm text-gray-400">4 единицы требуют срочной замены</p>
-                </div>
-              </Card>
-            </div>
-
-            <Card className="bg-[#0A0E1A]/80 border-[#00F0FF]/20 p-6">
-              <h3 className="text-2xl font-bold text-[#00F0FF] mb-6 glow">Анализ результатов опроса</h3>
-              <div className="space-y-4">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-gray-300">Ведение журнала учёта</span>
-                      <span className="text-[#00F0FF] font-bold">100%</span>
-                    </div>
-                    <Progress value={100} className="h-2 bg-gray-800/50" />
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-gray-300">Регулярная чистка от пыли</span>
-                      <span className="text-[#F97316] font-bold">33%</span>
-                    </div>
-                    <Progress value={33} className="h-2 bg-gray-800/50" />
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-gray-300">Фиксация поломок</span>
-                      <span className="text-[#8B5CF6] font-bold">67%</span>
-                    </div>
-                    <Progress value={67} className="h-2 bg-gray-800/50" />
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-gray-300">Инструктаж пользователей</span>
-                      <span className="text-[#00F0FF] font-bold">100%</span>
-                    </div>
-                    <Progress value={100} className="h-2 bg-gray-800/50" />
-                  </div>
+          <TabsContent value="equipment" className="mt-6">
+            <Card className="border border-gray-200">
+              <div className="p-6">
+                <h2 className="text-2xl font-bold mb-4 text-black">Оборудование</h2>
+                <p className="text-gray-600 mb-6">Полный список оборудования с информацией о техническом обслуживании</p>
+                
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-gray-50">
+                        <TableHead className="font-bold text-black">№</TableHead>
+                        <TableHead className="font-bold text-black">Название</TableHead>
+                        <TableHead className="font-bold text-black">Тип</TableHead>
+                        <TableHead className="font-bold text-black">Статус</TableHead>
+                        <TableHead className="font-bold text-black">Расположение</TableHead>
+                        <TableHead className="font-bold text-black">Последнее ТО</TableHead>
+                        <TableHead className="font-bold text-black">Следующее ТО</TableHead>
+                        <TableHead className="font-bold text-black">Ответственный</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {equipmentData.map((item) => (
+                        <TableRow key={item.id} className="hover:bg-gray-50">
+                          <TableCell className="font-medium">{item.id}</TableCell>
+                          <TableCell className="font-medium text-black">{item.name}</TableCell>
+                          <TableCell>{item.type}</TableCell>
+                          <TableCell>{getStatusBadge(item.status)}</TableCell>
+                          <TableCell>{item.location}</TableCell>
+                          <TableCell>{item.lastMaintenance}</TableCell>
+                          <TableCell>{item.nextMaintenance}</TableCell>
+                          <TableCell>{item.responsible}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                 </div>
               </div>
             </Card>
           </TabsContent>
 
-          <TabsContent value="equipment" className="space-y-6 mt-8">
-            <div className="grid gap-4">
-              {equipmentData.map((item, index) => (
-                <Card 
-                  key={item.id}
-                  className={`bg-[#0A0E1A]/80 border p-6 hover:shadow-lg transition-all duration-300 animate-slide-up ${getStatusBg(item.status)}`}
-                  style={{ animationDelay: `${index * 50}ms` }}
-                >
-                  <div className="grid md:grid-cols-4 gap-4">
-                    <div className="md:col-span-2 space-y-3">
-                      <div className="flex items-start gap-3">
-                        <Icon name="HardDrive" className={getStatusColor(item.status)} size={24} />
-                        <div className="flex-1">
-                          <h4 className="text-lg font-bold text-white">{item.name}</h4>
-                          <p className="text-sm text-gray-400">{item.type}</p>
-                          <Badge className={`mt-2 ${getStatusBg(item.status)} ${getStatusColor(item.status)}`}>
-                            {item.status === 'working' && 'Работает'}
-                            {item.status === 'warning' && 'Требует внимания'}
-                            {item.status === 'critical' && 'Критично'}
-                          </Badge>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <div className="text-sm text-gray-400">Износ: <span className={`font-bold ${getStatusColor(item.status)}`}>{item.wearLevel}%</span></div>
-                      <Progress value={item.wearLevel} className="h-2 bg-gray-800/50" />
-                      <div className="text-xs text-gray-500">Последнее ТО: {item.lastMaintenance}</div>
-                    </div>
-
-                    <div className="space-y-1 text-right">
-                      <div className="text-sm text-gray-400">Прогноз замены</div>
-                      <div className="text-lg font-bold text-[#8B5CF6]">{item.predictedReplacement}</div>
-                      <div className={`text-xs font-bold ${item.daysUntilReplacement < 100 ? 'text-[#ef4444]' : 'text-[#00F0FF]'}`}>
-                        через {item.daysUntilReplacement} дней
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="reports" className="space-y-6 mt-8">
-            <div className="grid md:grid-cols-2 gap-6">
-              <Card className="bg-[#0A0E1A]/80 border-[#00F0FF]/20 p-6">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <Icon name="TrendingUp" className="text-[#00F0FF]" size={32} />
-                    <h3 className="text-xl font-bold text-white">Эффективность системы</h3>
-                  </div>
-                  <p className="text-gray-300 text-sm leading-relaxed">
-                    По результатам опроса, только <strong className="text-[#ef4444]">0% респондентов</strong> подтвердили, 
-                    что система учёта реально снижает количество срывов занятий из-за поломок.
-                  </p>
-                  <div className="p-4 bg-[#F97316]/10 border border-[#F97316]/30 rounded-lg">
-                    <p className="text-[#F97316] text-sm font-bold">
-                      ⚠️ Рекомендация: требуется пересмотр процессов техобслуживания и внедрение превентивных мер
-                    </p>
-                  </div>
+          <TabsContent value="ratings" className="mt-6">
+            <Card className="border border-gray-200">
+              <div className="p-6">
+                <h2 className="text-2xl font-bold mb-4 text-black">Оценки классов</h2>
+                <p className="text-gray-600 mb-6">Результаты опроса по 15 вопросам для каждого класса</p>
+                
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-gray-50">
+                        <TableHead className="font-bold text-black">Класс</TableHead>
+                        <TableHead className="font-bold text-black">Рейтинг</TableHead>
+                        <TableHead className="font-bold text-black">Всего вопросов</TableHead>
+                        <TableHead className="font-bold text-black">Положительных ответов</TableHead>
+                        <TableHead className="font-bold text-black">Требует внимания</TableHead>
+                        <TableHead className="font-bold text-black">Процент</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {classRatings.map((classRoom) => (
+                        <TableRow key={classRoom.id} className="hover:bg-gray-50">
+                          <TableCell className="font-medium text-black">{classRoom.className}</TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <span className="text-2xl font-bold">{classRoom.rating}</span>
+                              <span className="text-gray-500">/100</span>
+                            </div>
+                          </TableCell>
+                          <TableCell>{classRoom.totalQuestions}</TableCell>
+                          <TableCell>
+                            <Badge className="bg-green-100 text-green-800 border-green-200">
+                              {classRoom.positiveAnswers}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
+                              {classRoom.needsAttention}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <div className="w-24 bg-gray-200 rounded-full h-2">
+                                <div 
+                                  className="bg-black h-2 rounded-full" 
+                                  style={{ width: `${classRoom.rating}%` }}
+                                />
+                              </div>
+                              <span className="text-sm font-medium">{classRoom.rating}%</span>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                 </div>
-              </Card>
 
-              <Card className="bg-[#0A0E1A]/80 border-[#8B5CF6]/20 p-6">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <Icon name="Target" className="text-[#8B5CF6]" size={32} />
-                    <h3 className="text-xl font-bold text-white">Ключевые проблемы</h3>
-                  </div>
-                  <ul className="space-y-3 text-sm">
+                <div className="mt-8 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <h3 className="font-bold text-lg mb-3 text-black">Ключевые выводы</h3>
+                  <ul className="space-y-2 text-sm text-gray-700">
                     <li className="flex items-start gap-2">
-                      <Icon name="AlertCircle" className="text-[#F97316] flex-shrink-0 mt-0.5" size={16} />
-                      <span className="text-gray-300">Нерегулярная чистка оборудования (только 33% классов)</span>
+                      <Icon name="CheckCircle" className="text-green-600 flex-shrink-0 mt-0.5" size={16} />
+                      <span><strong>Класс №1</strong> показывает лучшие результаты (87%) - ведётся регулярный учёт</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <Icon name="AlertCircle" className="text-[#F97316] flex-shrink-0 mt-0.5" size={16} />
-                      <span className="text-gray-300">Недостаточный анализ программных сбоев (33% классов)</span>
+                      <Icon name="AlertCircle" className="text-yellow-600 flex-shrink-0 mt-0.5" size={16} />
+                      <span><strong>Класс №2</strong> требует улучшения системы обслуживания (72%)</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <Icon name="AlertCircle" className="text-[#F97316] flex-shrink-0 mt-0.5" size={16} />
-                      <span className="text-gray-300">Отсутствие тестирования нового оборудования в 33% случаев</span>
+                      <Icon name="AlertTriangle" className="text-red-600 flex-shrink-0 mt-0.5" size={16} />
+                      <span><strong>Класс №3</strong> нуждается в срочных мерах (65%) - нерегулярная чистка и ТО</span>
                     </li>
                   </ul>
                 </div>
+              </div>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="reviews" className="mt-6">
+            <div className="grid gap-6">
+              <Card className="border border-gray-200">
+                <div className="p-6">
+                  <h2 className="text-2xl font-bold mb-4 text-black">Отзывы о состоянии оборудования</h2>
+                  <p className="text-gray-600 mb-6">Мнения преподавателей и технического персонала</p>
+                  
+                  <div className="space-y-4">
+                    {reviews.map((review) => (
+                      <Card key={review.id} className="border border-gray-200 bg-gray-50">
+                        <div className="p-4">
+                          <div className="flex items-start justify-between mb-3">
+                            <div>
+                              <div className="flex items-center gap-3 mb-1">
+                                <span className="font-bold text-black">{review.author}</span>
+                                <Badge variant="outline" className="text-xs">{review.role}</Badge>
+                              </div>
+                              <div className="text-sm text-gray-600">
+                                {review.equipmentName} • {review.date}
+                              </div>
+                            </div>
+                            {renderStars(review.rating)}
+                          </div>
+                          <p className="text-gray-700">{review.comment}</p>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
               </Card>
 
-              <Card className="bg-[#0A0E1A]/80 border-[#00F0FF]/20 p-6 md:col-span-2">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <Icon name="Lightbulb" className="text-[#00F0FF]" size={32} />
-                    <h3 className="text-xl font-bold text-white">Рекомендации по улучшению</h3>
-                  </div>
-                  <div className="grid md:grid-cols-3 gap-4">
-                    <div className="p-4 bg-[#00F0FF]/5 border border-[#00F0FF]/20 rounded-lg space-y-2">
-                      <Icon name="Calendar" className="text-[#00F0FF]" size={24} />
-                      <h4 className="font-bold text-white">Регулярное ТО</h4>
-                      <p className="text-xs text-gray-400">Внедрить график плановых чисток каждые 3 месяца</p>
+              <Card className="border border-gray-200">
+                <div className="p-6">
+                  <h3 className="text-xl font-bold mb-4 text-black">Оставить отзыв</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-2 text-black">Оценка</label>
+                      <div className="flex gap-2">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            key={star}
+                            onClick={() => setNewReview({ ...newReview, rating: star })}
+                            className="transition-colors"
+                          >
+                            <Icon
+                              name="Star"
+                              size={32}
+                              className={star <= newReview.rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300 hover:text-yellow-200'}
+                            />
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                    <div className="p-4 bg-[#8B5CF6]/5 border border-[#8B5CF6]/20 rounded-lg space-y-2">
-                      <Icon name="Shield" className="text-[#8B5CF6]" size={24} />
-                      <h4 className="font-bold text-white">Мониторинг ПО</h4>
-                      <p className="text-xs text-gray-400">Автоматизировать сбор логов программных ошибок</p>
+                    <div>
+                      <label className="block text-sm font-medium mb-2 text-black">Комментарий</label>
+                      <Textarea
+                        placeholder="Опишите состояние оборудования, проблемы или предложения..."
+                        value={newReview.comment}
+                        onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
+                        className="min-h-24"
+                      />
                     </div>
-                    <div className="p-4 bg-[#F97316]/5 border border-[#F97316]/20 rounded-lg space-y-2">
-                      <Icon name="Wrench" className="text-[#F97316]" size={24} />
-                      <h4 className="font-bold text-white">Превентивная замена</h4>
-                      <p className="text-xs text-gray-400">Планировать замену при износе 70%+</p>
-                    </div>
+                    <Button className="w-full bg-black text-white hover:bg-gray-800">
+                      <Icon name="Send" size={18} className="mr-2" />
+                      Отправить отзыв
+                    </Button>
                   </div>
                 </div>
               </Card>
@@ -357,8 +314,8 @@ export default function Index() {
           </TabsContent>
         </Tabs>
 
-        <footer className="text-center text-gray-500 text-sm pt-8">
-          <p>© 2024 ТЕХКОНТРОЛЬ — Система мониторинга оборудования</p>
+        <footer className="text-center text-gray-500 text-sm pt-8 border-t">
+          <p>© 2024 Система учёта оборудования компьютерных классов</p>
         </footer>
       </div>
     </div>

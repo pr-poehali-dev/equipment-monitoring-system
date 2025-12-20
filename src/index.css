@@ -6,50 +6,50 @@
 
 @layer base {
   :root {
-    --background: 222 47% 5%;
-    --foreground: 180 100% 97%;
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
 
-    --card: 222 47% 8%;
-    --card-foreground: 180 100% 97%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 0%;
 
-    --popover: 222 47% 8%;
-    --popover-foreground: 180 100% 97%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 0%;
 
-    --primary: 180 100% 50%;
-    --primary-foreground: 222 47% 5%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
 
-    --secondary: 258 90% 66%;
-    --secondary-foreground: 180 100% 97%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 9%;
 
-    --muted: 222 47% 12%;
-    --muted-foreground: 180 20% 65%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
 
-    --accent: 258 90% 66%;
-    --accent-foreground: 180 100% 97%;
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 9%;
 
-    --destructive: 17 88% 58%;
-    --destructive-foreground: 180 100% 97%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 222 47% 15%;
-    --input: 222 47% 12%;
-    --ring: 180 100% 50%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 0 0% 9%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
-    --sidebar-background: 222 47% 6%;
-    --sidebar-foreground: 180 100% 97%;
-    --sidebar-primary: 180 100% 50%;
-    --sidebar-primary-foreground: 222 47% 5%;
-    --sidebar-accent: 258 90% 66%;
-    --sidebar-accent-foreground: 180 100% 97%;
-    --sidebar-border: 222 47% 12%;
-    --sidebar-ring: 180 100% 50%;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 0 0% 9%;
+    --sidebar-primary: 0 0% 9%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 0 0% 96%;
+    --sidebar-accent-foreground: 0 0% 9%;
+    --sidebar-border: 0 0% 90%;
+    --sidebar-ring: 0 0% 9%;
 
-    --chart-1: 180 100% 50%;
-    --chart-2: 258 90% 66%;
-    --chart-3: 17 88% 58%;
-    --chart-4: 142 71% 45%;
-    --chart-5: 48 96% 53%;
+    --chart-1: 210 60% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 60% 50%;
+    --chart-5: 340 75% 55%;
   }
 }
 
@@ -69,29 +69,7 @@
   h4,
   h5,
   h6 {
-    font-family: "Orbitron", sans-serif;
+    font-family: "Inter", sans-serif;
     font-weight: 700;
-  }
-}
-
-@layer utilities {
-  .glow {
-    text-shadow:
-      0 0 10px currentColor,
-      0 0 20px currentColor;
-  }
-
-  .glow-border {
-    box-shadow:
-      0 0 10px currentColor,
-      0 0 20px currentColor,
-      inset 0 0 10px currentColor;
-  }
-
-  .cyber-grid {
-    background-image:
-      linear-gradient(rgba(0, 240, 255, 0.1) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0, 240, 255, 0.1) 1px, transparent 1px);
-    background-size: 50px 50px;
   }
 }
