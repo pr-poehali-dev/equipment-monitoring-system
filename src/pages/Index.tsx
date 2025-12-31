@@ -1,321 +1,444 @@
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import Icon from '@/components/ui/icon';
 
-interface EquipmentItem {
+interface Anime {
   id: number;
-  name: string;
-  type: string;
-  status: 'working' | 'warning' | 'critical';
-  location: string;
-  lastMaintenance: string;
-  nextMaintenance: string;
-  responsible: string;
-}
-
-interface ClassRating {
-  id: number;
-  className: string;
+  rank: number;
+  title: string;
+  titleJapanese: string;
   rating: number;
-  totalQuestions: number;
-  positiveAnswers: number;
-  needsAttention: number;
-}
-
-interface Review {
-  id: number;
-  author: string;
-  role: string;
-  date: string;
-  rating: number;
-  equipmentId: number;
-  equipmentName: string;
-  comment: string;
+  year: number;
+  episodes: number;
+  genre: string[];
+  description: string;
+  popularity: number;
 }
 
 export default function Index() {
-  const [selectedTab, setSelectedTab] = useState('equipment');
-  const [newReview, setNewReview] = useState({ rating: 5, comment: '' });
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [selectedGenre, setSelectedGenre] = useState<string>('Все');
 
-  const equipmentData: EquipmentItem[] = [
-    { id: 1, name: 'Рабочая станция #01', type: 'Компьютер', status: 'working', location: 'Класс №1', lastMaintenance: '15.11.2024', nextMaintenance: '15.02.2025', responsible: 'Иванов И.И.' },
-    { id: 2, name: 'Рабочая станция #02', type: 'Компьютер', status: 'working', location: 'Класс №1', lastMaintenance: '20.10.2024', nextMaintenance: '20.01.2025', responsible: 'Иванов И.И.' },
-    { id: 3, name: 'Рабочая станция #03', type: 'Компьютер', status: 'warning', location: 'Класс №2', lastMaintenance: '05.09.2024', nextMaintenance: '05.12.2024', responsible: 'Петров П.П.' },
-    { id: 4, name: 'Монитор Dell #12', type: 'Монитор', status: 'critical', location: 'Класс №2', lastMaintenance: '12.08.2024', nextMaintenance: '12.11.2024', responsible: 'Петров П.П.' },
-    { id: 5, name: 'Сервер #01', type: 'Сервер', status: 'working', location: 'Серверная', lastMaintenance: '01.12.2024', nextMaintenance: '01.03.2025', responsible: 'Сидоров С.С.' },
-    { id: 6, name: 'Принтер HP LaserJet', type: 'Периферия', status: 'warning', location: 'Класс №3', lastMaintenance: '10.10.2024', nextMaintenance: '10.01.2025', responsible: 'Иванов И.И.' },
-    { id: 7, name: 'Проектор Epson', type: 'Проектор', status: 'working', location: 'Класс №1', lastMaintenance: '25.11.2024', nextMaintenance: '25.02.2025', responsible: 'Иванов И.И.' },
-    { id: 8, name: 'Интерактивная доска', type: 'Периферия', status: 'working', location: 'Класс №2', lastMaintenance: '18.11.2024', nextMaintenance: '18.02.2025', responsible: 'Петров П.П.' },
+  const animeList: Anime[] = [
+    {
+      id: 1,
+      rank: 1,
+      title: 'Атака титанов',
+      titleJapanese: 'Shingeki no Kyojin',
+      rating: 9.2,
+      year: 2013,
+      episodes: 87,
+      genre: ['Экшен', 'Драма', 'Фэнтези'],
+      description: 'Человечество заключено за стеной, спасаясь от гигантских титанов. История борьбы за выживание и свободу.',
+      popularity: 98
+    },
+    {
+      id: 2,
+      rank: 2,
+      title: 'Тетрадь смерти',
+      titleJapanese: 'Death Note',
+      rating: 9.0,
+      year: 2006,
+      episodes: 37,
+      genre: ['Триллер', 'Психология', 'Детектив'],
+      description: 'Гениальный студент находит тетрадь, позволяющую убивать людей, записывая их имена.',
+      popularity: 95
+    },
+    {
+      id: 3,
+      rank: 3,
+      title: 'Стальной алхимик',
+      titleJapanese: 'Fullmetal Alchemist: Brotherhood',
+      rating: 9.1,
+      year: 2009,
+      episodes: 64,
+      genre: ['Экшен', 'Приключения', 'Драма'],
+      description: 'Два брата-алхимика ищут философский камень, чтобы вернуть свои тела после неудачного эксперимента.',
+      popularity: 92
+    },
+    {
+      id: 4,
+      rank: 4,
+      title: 'Ванпанчмен',
+      titleJapanese: 'One Punch Man',
+      rating: 8.7,
+      year: 2015,
+      episodes: 24,
+      genre: ['Экшен', 'Комедия', 'Супергерои'],
+      description: 'Самый сильный герой, способный победить любого врага одним ударом, скучает от отсутствия достойных соперников.',
+      popularity: 94
+    },
+    {
+      id: 5,
+      rank: 5,
+      title: 'Стейнс;Гейт',
+      titleJapanese: 'Steins;Gate',
+      rating: 9.0,
+      year: 2011,
+      episodes: 24,
+      genre: ['Фантастика', 'Триллер', 'Драма'],
+      description: 'Группа друзей случайно создаёт машину времени и попадает в водоворот временных парадоксов.',
+      popularity: 88
+    },
+    {
+      id: 6,
+      rank: 6,
+      title: 'Охотник × Охотник',
+      titleJapanese: 'Hunter × Hunter',
+      rating: 9.0,
+      year: 2011,
+      episodes: 148,
+      genre: ['Приключения', 'Экшен', 'Фэнтези'],
+      description: 'Мальчик отправляется в путешествие, чтобы стать Охотником и найти своего отца.',
+      popularity: 90
+    },
+    {
+      id: 7,
+      rank: 7,
+      title: 'Код Гиас',
+      titleJapanese: 'Code Geass',
+      rating: 8.8,
+      year: 2006,
+      episodes: 50,
+      genre: ['Экшен', 'Меха', 'Драма'],
+      description: 'Принц-изгнанник получает силу абсолютного подчинения и ведёт восстание против империи.',
+      popularity: 91
+    },
+    {
+      id: 8,
+      rank: 8,
+      title: 'Ковбой Бибоп',
+      titleJapanese: 'Cowboy Bebop',
+      rating: 8.9,
+      year: 1998,
+      episodes: 26,
+      genre: ['Фантастика', 'Экшен', 'Драма'],
+      description: 'Команда охотников за головами путешествует по космосу в поисках преступников и смысла жизни.',
+      popularity: 85
+    },
+    {
+      id: 9,
+      rank: 9,
+      title: 'Клинок, рассекающий демонов',
+      titleJapanese: 'Kimetsu no Yaiba',
+      rating: 8.7,
+      year: 2019,
+      episodes: 44,
+      genre: ['Экшен', 'Фэнтези', 'Демоны'],
+      description: 'Мальчик становится истребителем демонов, чтобы спасти свою сестру, превращённую в демона.',
+      popularity: 97
+    },
+    {
+      id: 10,
+      rank: 10,
+      title: 'Моб Психо 100',
+      titleJapanese: 'Mob Psycho 100',
+      rating: 8.6,
+      year: 2016,
+      episodes: 37,
+      genre: ['Экшен', 'Комедия', 'Сверхспособности'],
+      description: 'Застенчивый подросток с невероятными психическими способностями пытается жить обычной жизнью.',
+      popularity: 87
+    },
+    {
+      id: 11,
+      rank: 11,
+      title: 'Обещанный Неверленд',
+      titleJapanese: 'Yakusoku no Neverland',
+      rating: 8.5,
+      year: 2019,
+      episodes: 23,
+      genre: ['Триллер', 'Психология', 'Тайна'],
+      description: 'Дети из идеального приюта узнают ужасную правду и планируют побег из смертельной ловушки.',
+      popularity: 89
+    },
+    {
+      id: 12,
+      rank: 12,
+      title: 'Джоджо',
+      titleJapanese: 'JoJo no Kimyou na Bouken',
+      rating: 8.6,
+      year: 2012,
+      episodes: 190,
+      genre: ['Экшен', 'Приключения', 'Сверхспособности'],
+      description: 'Эпическая сага о династии Джостаров, сражающихся со злом через поколения.',
+      popularity: 93
+    },
+    {
+      id: 13,
+      rank: 13,
+      title: 'Евангелион',
+      titleJapanese: 'Neon Genesis Evangelion',
+      rating: 8.5,
+      year: 1995,
+      episodes: 26,
+      genre: ['Меха', 'Психология', 'Драма'],
+      description: 'Подростки пилотируют гигантских роботов для защиты человечества от загадочных Ангелов.',
+      popularity: 86
+    },
+    {
+      id: 14,
+      rank: 14,
+      title: 'Наруто: Ураганные хроники',
+      titleJapanese: 'Naruto: Shippuden',
+      rating: 8.4,
+      year: 2007,
+      episodes: 500,
+      genre: ['Экшен', 'Приключения', 'Ниндзя'],
+      description: 'Взрослый Наруто продолжает путь к мечте стать сильнейшим ниндзя и Хокаге своей деревни.',
+      popularity: 96
+    },
+    {
+      id: 15,
+      rank: 15,
+      title: 'Твоё имя',
+      titleJapanese: 'Kimi no Na wa',
+      rating: 8.8,
+      year: 2016,
+      episodes: 1,
+      genre: ['Романтика', 'Драма', 'Фэнтези'],
+      description: 'Мальчик и девочка из разных городов начинают таинственным образом меняться телами во сне.',
+      popularity: 99
+    }
   ];
 
-  const classRatings: ClassRating[] = [
-    { id: 1, className: 'Компьютерный класс №1', rating: 87, totalQuestions: 15, positiveAnswers: 13, needsAttention: 2 },
-    { id: 2, className: 'Компьютерный класс №2', rating: 72, totalQuestions: 15, positiveAnswers: 11, needsAttention: 4 },
-    { id: 3, className: 'Компьютерный класс №3', rating: 65, totalQuestions: 15, positiveAnswers: 10, needsAttention: 5 },
-  ];
+  const allGenres = ['Все', ...Array.from(new Set(animeList.flatMap(anime => anime.genre)))];
 
-  const reviews: Review[] = [
-    { id: 1, author: 'Смирнов А.В.', role: 'Преподаватель', date: '18.12.2024', rating: 5, equipmentId: 1, equipmentName: 'Рабочая станция #01', comment: 'Отличное состояние, работает стабильно. Студенты не испытывают проблем.' },
-    { id: 2, author: 'Козлова М.И.', role: 'Преподаватель', date: '17.12.2024', rating: 3, equipmentId: 3, equipmentName: 'Рабочая станция #03', comment: 'Периодически зависает, требуется проверка. Мешает проведению занятий.' },
-    { id: 3, author: 'Новиков Д.С.', role: 'Администратор', date: '15.12.2024', rating: 2, equipmentId: 4, equipmentName: 'Монитор Dell #12', comment: 'Монитор мерцает, срочно требуется замена. Студенты жалуются на усталость глаз.' },
-    { id: 4, author: 'Федорова Н.П.', role: 'Преподаватель', date: '14.12.2024', rating: 5, equipmentId: 7, equipmentName: 'Проектор Epson', comment: 'Изображение чёткое, звук хороший. Отлично подходит для презентаций.' },
-    { id: 5, author: 'Морозов В.Л.', role: 'Техник', date: '12.12.2024', rating: 4, equipmentId: 5, equipmentName: 'Сервер #01', comment: 'Работает стабильно, но требуется обновление ПО в ближайшее время.' },
-  ];
+  const filteredAnime = selectedGenre === 'Все' 
+    ? animeList 
+    : animeList.filter(anime => anime.genre.includes(selectedGenre));
 
-  const getStatusBadge = (status: string) => {
-    const variants = {
-      working: { label: 'Работает', className: 'bg-green-100 text-green-800 border-green-200' },
-      warning: { label: 'Требует внимания', className: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
-      critical: { label: 'Критично', className: 'bg-red-100 text-red-800 border-red-200' },
-    };
-    const variant = variants[status as keyof typeof variants] || variants.working;
-    return <Badge className={variant.className}>{variant.label}</Badge>;
+  const getRatingColor = (rating: number) => {
+    if (rating >= 9.0) return 'text-green-600';
+    if (rating >= 8.5) return 'text-blue-600';
+    if (rating >= 8.0) return 'text-yellow-600';
+    return 'text-gray-600';
   };
 
-  const renderStars = (rating: number) => {
-    return (
-      <div className="flex gap-1">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <Icon
-            key={star}
-            name="Star"
-            size={16}
-            className={star <= rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}
-          />
-        ))}
-      </div>
-    );
+  const getRatingBg = (rating: number) => {
+    if (rating >= 9.0) return 'bg-green-100 border-green-300';
+    if (rating >= 8.5) return 'bg-blue-100 border-blue-300';
+    if (rating >= 8.0) return 'bg-yellow-100 border-yellow-300';
+    return 'bg-gray-100 border-gray-300';
   };
 
   return (
-    <div className="min-h-screen bg-white p-6 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 p-6 md:p-8">
       <div className="max-w-7xl mx-auto space-y-8">
         
-        <header className="border-b pb-6">
-          <div className="flex items-center gap-3 mb-2">
-            <Icon name="ClipboardList" className="text-black" size={36} />
-            <h1 className="text-4xl font-bold text-black">
-              Система учёта оборудования
+        <header className="text-center space-y-4 py-8">
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <Icon name="Trophy" className="text-yellow-500" size={48} />
+            <h1 className="text-5xl md:text-6xl font-black bg-gradient-to-r from-purple-600 via-pink-600 to-orange-600 bg-clip-text text-transparent">
+              ТОП 15 АНИМЕ
             </h1>
           </div>
-          <p className="text-gray-600 text-lg">
-            Управление техникой компьютерных классов
+          <p className="text-xl text-gray-700 font-medium">
+            Лучшие аниме всех времён по версии критиков и зрителей
           </p>
+          
+          <div className="flex items-center justify-center gap-4 pt-4">
+            <Button
+              variant={viewMode === 'grid' ? 'default' : 'outline'}
+              onClick={() => setViewMode('grid')}
+              className="gap-2"
+            >
+              <Icon name="Grid3x3" size={18} />
+              Сетка
+            </Button>
+            <Button
+              variant={viewMode === 'list' ? 'default' : 'outline'}
+              onClick={() => setViewMode('list')}
+              className="gap-2"
+            >
+              <Icon name="List" size={18} />
+              Список
+            </Button>
+          </div>
         </header>
 
-        <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 bg-gray-100">
-            <TabsTrigger value="equipment">
-              <Icon name="Monitor" size={18} className="mr-2" />
-              Таблица оборудования
-            </TabsTrigger>
-            <TabsTrigger value="ratings">
-              <Icon name="BarChart" size={18} className="mr-2" />
-              Оценки классов
-            </TabsTrigger>
-            <TabsTrigger value="reviews">
-              <Icon name="MessageSquare" size={18} className="mr-2" />
-              Отзывы
-            </TabsTrigger>
-          </TabsList>
+        <div className="flex flex-wrap gap-2 justify-center">
+          {allGenres.map((genre) => (
+            <Badge
+              key={genre}
+              onClick={() => setSelectedGenre(genre)}
+              className={`cursor-pointer px-4 py-2 text-sm transition-all ${
+                selectedGenre === genre
+                  ? 'bg-purple-600 text-white hover:bg-purple-700'
+                  : 'bg-white text-gray-700 hover:bg-gray-100 border-gray-300'
+              }`}
+            >
+              {genre}
+            </Badge>
+          ))}
+        </div>
 
-          <TabsContent value="equipment" className="mt-6">
-            <Card className="border border-gray-200">
-              <div className="p-6">
-                <h2 className="text-2xl font-bold mb-4 text-black">Оборудование</h2>
-                <p className="text-gray-600 mb-6">Полный список оборудования с информацией о техническом обслуживании</p>
+        <div className={viewMode === 'grid' 
+          ? 'grid md:grid-cols-2 lg:grid-cols-3 gap-6' 
+          : 'space-y-4'
+        }>
+          {filteredAnime.map((anime, index) => (
+            <Card 
+              key={anime.id} 
+              className={`border-2 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 bg-white ${
+                viewMode === 'list' ? 'flex' : ''
+              }`}
+              style={{ 
+                animationDelay: `${index * 50}ms`,
+                borderColor: anime.rank <= 3 ? '#fbbf24' : '#e5e7eb'
+              }}
+            >
+              <div className={viewMode === 'list' ? 'flex w-full' : 'p-6 space-y-4'}>
                 
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="bg-gray-50">
-                        <TableHead className="font-bold text-black">№</TableHead>
-                        <TableHead className="font-bold text-black">Название</TableHead>
-                        <TableHead className="font-bold text-black">Тип</TableHead>
-                        <TableHead className="font-bold text-black">Статус</TableHead>
-                        <TableHead className="font-bold text-black">Расположение</TableHead>
-                        <TableHead className="font-bold text-black">Последнее ТО</TableHead>
-                        <TableHead className="font-bold text-black">Следующее ТО</TableHead>
-                        <TableHead className="font-bold text-black">Ответственный</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {equipmentData.map((item) => (
-                        <TableRow key={item.id} className="hover:bg-gray-50">
-                          <TableCell className="font-medium">{item.id}</TableCell>
-                          <TableCell className="font-medium text-black">{item.name}</TableCell>
-                          <TableCell>{item.type}</TableCell>
-                          <TableCell>{getStatusBadge(item.status)}</TableCell>
-                          <TableCell>{item.location}</TableCell>
-                          <TableCell>{item.lastMaintenance}</TableCell>
-                          <TableCell>{item.nextMaintenance}</TableCell>
-                          <TableCell>{item.responsible}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              </div>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="ratings" className="mt-6">
-            <Card className="border border-gray-200">
-              <div className="p-6">
-                <h2 className="text-2xl font-bold mb-4 text-black">Оценки классов</h2>
-                <p className="text-gray-600 mb-6">Результаты опроса по 15 вопросам для каждого класса</p>
-                
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="bg-gray-50">
-                        <TableHead className="font-bold text-black">Класс</TableHead>
-                        <TableHead className="font-bold text-black">Рейтинг</TableHead>
-                        <TableHead className="font-bold text-black">Всего вопросов</TableHead>
-                        <TableHead className="font-bold text-black">Положительных ответов</TableHead>
-                        <TableHead className="font-bold text-black">Требует внимания</TableHead>
-                        <TableHead className="font-bold text-black">Процент</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {classRatings.map((classRoom) => (
-                        <TableRow key={classRoom.id} className="hover:bg-gray-50">
-                          <TableCell className="font-medium text-black">{classRoom.className}</TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <span className="text-2xl font-bold">{classRoom.rating}</span>
-                              <span className="text-gray-500">/100</span>
-                            </div>
-                          </TableCell>
-                          <TableCell>{classRoom.totalQuestions}</TableCell>
-                          <TableCell>
-                            <Badge className="bg-green-100 text-green-800 border-green-200">
-                              {classRoom.positiveAnswers}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
-                              {classRoom.needsAttention}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <div className="w-24 bg-gray-200 rounded-full h-2">
-                                <div 
-                                  className="bg-black h-2 rounded-full" 
-                                  style={{ width: `${classRoom.rating}%` }}
-                                />
-                              </div>
-                              <span className="text-sm font-medium">{classRoom.rating}%</span>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-
-                <div className="mt-8 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                  <h3 className="font-bold text-lg mb-3 text-black">Ключевые выводы</h3>
-                  <ul className="space-y-2 text-sm text-gray-700">
-                    <li className="flex items-start gap-2">
-                      <Icon name="CheckCircle" className="text-green-600 flex-shrink-0 mt-0.5" size={16} />
-                      <span><strong>Класс №1</strong> показывает лучшие результаты (87%) - ведётся регулярный учёт</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Icon name="AlertCircle" className="text-yellow-600 flex-shrink-0 mt-0.5" size={16} />
-                      <span><strong>Класс №2</strong> требует улучшения системы обслуживания (72%)</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Icon name="AlertTriangle" className="text-red-600 flex-shrink-0 mt-0.5" size={16} />
-                      <span><strong>Класс №3</strong> нуждается в срочных мерах (65%) - нерегулярная чистка и ТО</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="reviews" className="mt-6">
-            <div className="grid gap-6">
-              <Card className="border border-gray-200">
-                <div className="p-6">
-                  <h2 className="text-2xl font-bold mb-4 text-black">Отзывы о состоянии оборудования</h2>
-                  <p className="text-gray-600 mb-6">Мнения преподавателей и технического персонала</p>
-                  
-                  <div className="space-y-4">
-                    {reviews.map((review) => (
-                      <Card key={review.id} className="border border-gray-200 bg-gray-50">
-                        <div className="p-4">
-                          <div className="flex items-start justify-between mb-3">
-                            <div>
-                              <div className="flex items-center gap-3 mb-1">
-                                <span className="font-bold text-black">{review.author}</span>
-                                <Badge variant="outline" className="text-xs">{review.role}</Badge>
-                              </div>
-                              <div className="text-sm text-gray-600">
-                                {review.equipmentName} • {review.date}
-                              </div>
-                            </div>
-                            {renderStars(review.rating)}
-                          </div>
-                          <p className="text-gray-700">{review.comment}</p>
-                        </div>
-                      </Card>
-                    ))}
+                {viewMode === 'grid' && (
+                  <div className="flex items-start justify-between">
+                    <div className={`w-16 h-16 rounded-full flex items-center justify-center text-2xl font-black ${
+                      anime.rank === 1 ? 'bg-gradient-to-br from-yellow-400 to-yellow-600 text-white' :
+                      anime.rank === 2 ? 'bg-gradient-to-br from-gray-300 to-gray-500 text-white' :
+                      anime.rank === 3 ? 'bg-gradient-to-br from-orange-400 to-orange-600 text-white' :
+                      'bg-gradient-to-br from-purple-100 to-purple-200 text-purple-800'
+                    }`}>
+                      #{anime.rank}
+                    </div>
+                    <div className={`flex items-center gap-1 px-3 py-1 rounded-full border-2 ${getRatingBg(anime.rating)}`}>
+                      <Icon name="Star" className={`fill-current ${getRatingColor(anime.rating)}`} size={20} />
+                      <span className={`font-bold text-lg ${getRatingColor(anime.rating)}`}>
+                        {anime.rating}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              </Card>
+                )}
 
-              <Card className="border border-gray-200">
-                <div className="p-6">
-                  <h3 className="text-xl font-bold mb-4 text-black">Оставить отзыв</h3>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-2 text-black">Оценка</label>
-                      <div className="flex gap-2">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <button
-                            key={star}
-                            onClick={() => setNewReview({ ...newReview, rating: star })}
-                            className="transition-colors"
-                          >
-                            <Icon
-                              name="Star"
-                              size={32}
-                              className={star <= newReview.rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300 hover:text-yellow-200'}
-                            />
-                          </button>
+                {viewMode === 'list' && (
+                  <div className="flex items-center gap-4 p-4 w-full">
+                    <div className={`w-14 h-14 rounded-full flex items-center justify-center text-xl font-black flex-shrink-0 ${
+                      anime.rank === 1 ? 'bg-gradient-to-br from-yellow-400 to-yellow-600 text-white' :
+                      anime.rank === 2 ? 'bg-gradient-to-br from-gray-300 to-gray-500 text-white' :
+                      anime.rank === 3 ? 'bg-gradient-to-br from-orange-400 to-orange-600 text-white' :
+                      'bg-gradient-to-br from-purple-100 to-purple-200 text-purple-800'
+                    }`}>
+                      #{anime.rank}
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-xl font-bold text-gray-900 truncate">{anime.title}</h3>
+                          <p className="text-sm text-gray-500 italic truncate">{anime.titleJapanese}</p>
+                        </div>
+                        <div className={`flex items-center gap-1 px-3 py-1 rounded-full border-2 flex-shrink-0 ${getRatingBg(anime.rating)}`}>
+                          <Icon name="Star" className={`fill-current ${getRatingColor(anime.rating)}`} size={18} />
+                          <span className={`font-bold ${getRatingColor(anime.rating)}`}>
+                            {anime.rating}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <p className="text-sm text-gray-600 mt-2 line-clamp-2">{anime.description}</p>
+                      
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        {anime.genre.slice(0, 3).map((g) => (
+                          <Badge key={g} variant="outline" className="text-xs">
+                            {g}
+                          </Badge>
                         ))}
                       </div>
+                      
+                      <div className="flex items-center gap-4 mt-3 text-xs text-gray-500">
+                        <span className="flex items-center gap-1">
+                          <Icon name="Calendar" size={14} />
+                          {anime.year}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Icon name="Film" size={14} />
+                          {anime.episodes} эп.
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Icon name="TrendingUp" size={14} />
+                          {anime.popularity}%
+                        </span>
+                      </div>
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2 text-black">Комментарий</label>
-                      <Textarea
-                        placeholder="Опишите состояние оборудования, проблемы или предложения..."
-                        value={newReview.comment}
-                        onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
-                        className="min-h-24"
-                      />
-                    </div>
-                    <Button className="w-full bg-black text-white hover:bg-gray-800">
-                      <Icon name="Send" size={18} className="mr-2" />
-                      Отправить отзыв
-                    </Button>
                   </div>
-                </div>
-              </Card>
+                )}
+
+                {viewMode === 'grid' && (
+                  <>
+                    <div>
+                      <h3 className="text-2xl font-bold text-gray-900 mb-1">{anime.title}</h3>
+                      <p className="text-sm text-gray-500 italic">{anime.titleJapanese}</p>
+                    </div>
+
+                    <p className="text-sm text-gray-700 leading-relaxed">
+                      {anime.description}
+                    </p>
+
+                    <div className="flex flex-wrap gap-2">
+                      {anime.genre.map((g) => (
+                        <Badge key={g} variant="outline" className="text-xs">
+                          {g}
+                        </Badge>
+                      ))}
+                    </div>
+
+                    <div className="flex items-center justify-between pt-4 border-t">
+                      <div className="space-y-1 text-sm">
+                        <div className="flex items-center gap-2 text-gray-600">
+                          <Icon name="Calendar" size={16} />
+                          <span>{anime.year}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-gray-600">
+                          <Icon name="Film" size={16} />
+                          <span>{anime.episodes} серий</span>
+                        </div>
+                      </div>
+                      
+                      <div className="text-center">
+                        <div className="text-xs text-gray-500 mb-1">Популярность</div>
+                        <div className="text-2xl font-bold text-purple-600">{anime.popularity}%</div>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            </Card>
+          ))}
+        </div>
+
+        {filteredAnime.length === 0 && (
+          <div className="text-center py-16">
+            <Icon name="SearchX" size={64} className="text-gray-300 mx-auto mb-4" />
+            <p className="text-xl text-gray-500">Аниме в этом жанре не найдено</p>
+          </div>
+        )}
+
+        <Card className="border-2 border-purple-200 bg-gradient-to-r from-purple-50 to-pink-50">
+          <div className="p-6">
+            <h3 className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
+              <Icon name="Info" className="text-purple-600" size={24} />
+              О рейтинге
+            </h3>
+            <div className="space-y-2 text-sm text-gray-700">
+              <p>
+                <strong>Система оценок:</strong> Рейтинги основаны на оценках пользователей популярных аниме-порталов (MyAnimeList, AniList, Shikimori).
+              </p>
+              <p>
+                <strong>Критерии:</strong> Сюжет, анимация, саундтрек, персонажи, общее впечатление и культурное влияние.
+              </p>
+              <p className="flex items-center gap-2 flex-wrap">
+                <span><strong>Легенда рейтингов:</strong></span>
+                <Badge className="bg-green-100 text-green-700 border-green-300">9.0+ Шедевр</Badge>
+                <Badge className="bg-blue-100 text-blue-700 border-blue-300">8.5+ Отлично</Badge>
+                <Badge className="bg-yellow-100 text-yellow-700 border-yellow-300">8.0+ Хорошо</Badge>
+              </p>
             </div>
-          </TabsContent>
-        </Tabs>
+          </div>
+        </Card>
 
         <footer className="text-center text-gray-500 text-sm pt-8 border-t">
-          <p>© 2024 Система учёта оборудования компьютерных классов</p>
+          <p>© 2024 ТОП Аниме. Рейтинг обновляется ежемесячно</p>
         </footer>
       </div>
     </div>
